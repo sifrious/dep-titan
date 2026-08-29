@@ -26,3 +26,30 @@ Logres executes after dispatch. Titan does not own runtime or current-state. Fun
 `CodeAction`, `PlanCommit`, `PlanPr`, `PlanOption`, and `Checkin` arrive as adapter/input DTOs that preserve Landing source identifiers and provenance. They are not Eloquent models and not UI. Mapping and Landing-only residue are recorded in [docs/landing-adapters.md](docs/landing-adapters.md).
 
 Option selection and checkpoint recording are explicit transitions. Dependency-incomplete work can be assembled for inspection but cannot be presented as executable or dispatchable.
+
+## Planned-task graphs
+
+Titan can compile an executable work kit into a planned-task dependency graph with explicit task contracts:
+
+- stable planned-task identity
+- objective and outcome
+- first action
+- explicit dependency edges
+- scope fence
+- required Quain capability identities
+- required approvals
+- required inputs/artifacts
+- Orbis template reference by identity
+- verification steps
+- completion criteria
+- failure criteria
+
+Graph readiness is package-computed from dependency completion, approval state, capability compatibility, and required inputs. It uses planning labels (`ready`, `blocked`, `not_ready`, `completed`) and does not expose Logres runtime labels.
+
+Only dependency-complete, approval-complete, capability-compatible, input-ready tasks are emitted in `PlannedTaskHandoff`.
+
+## Out of scope in this slice
+
+- MME-1234 planning interrupts and approval-gate policy families (this slice only supports portable required-approval contracts and readiness).
+- MME-1235 repository/file/proposed-change bindings (task repo/file/test and change proposal contracts stay for that ticket).
+- Catalogue persistence extraction and any UI/browse stories.

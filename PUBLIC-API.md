@@ -28,3 +28,22 @@ The package is pre-release. These names define the current consumer surface; sem
 - `WorkKitCompilationFailure`
 - `WorkKitReadModel`
 - `InvalidWorkKitTransition`
+
+## Planned-task graphs
+
+- `PlannedTaskId`
+- `OrbisTemplateId`
+- `RequiredApproval`
+- `RequiredInput`
+- `PlannedTaskReadiness`
+- `PlannedTask`
+- `PlannedTaskGraphId`
+- `PlannedTaskGraphStatus`
+- `PlannedTaskGraphFailure`
+- `PlannedTaskGraphCompilationStatus`
+- `PlannedTaskGraphCompilationInput`
+- `PlannedTaskGraphCompilationResult`
+- `PlannedTaskGraphCompiler`
+- `PlannedTaskGraph`
+- `PlannedTaskGraphReadModel`
+- `PlannedTaskHandoff`

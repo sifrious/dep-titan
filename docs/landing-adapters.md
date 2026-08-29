@@ -11,3 +11,8 @@ Titan consumes portable input records. It does not own Eloquent models, Landing 
 | `Checkin` | Planning checkpoint. Recording is an explicit transition and is not inferred from timestamps. Runtime telemetry is not accepted. | Eloquent `App\Models\Checkin`, inspect UI ([MME-1206](https://linear.app/sifirous/issue/MME-1206)), mixed-ownership classification ([MME-863](https://linear.app/sifirous/issue/MME-863)). Execution current-state belongs to Logres; durable observations belong to Funes. |
 
 Landing user stories keep their original acceptance criteria. Display tickets consume Titan read models later; this slice does not implement browse or inspect routes.
+
+MME-1226 now defines task-graph and readiness semantics in-package. Remaining non-catalogue residues stay intentionally separated:
+
+- **MME-1234** interrupt/gate families (audit, scope, ship, code-review, avoidance policy objects)
+- **MME-1235** repository/file/test/proposed-change bindings and approval objects tied to those bindings

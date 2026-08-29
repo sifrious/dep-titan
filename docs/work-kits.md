@@ -36,3 +36,46 @@ Work-kit transitions happen on `WorkKit`:
 - `supersede` — available for assembled or executable kits; a later compilation may reference the prior identity
 
 Compilation is the explicit compile transition. Controllers and jobs must not infer selected options, recorded checkpoints, or dispatchability from timestamps or UI state.
+
+## Planned-task graph compilation
+
+MME-1226 adds a second compile step: executable work kit -> planned-task graph.
+
+Each planned task names:
+
+- stable planned task ID
+- objective and outcome
+- first action
+- dependency edges
+- scope fence
+- required Quain capability identities
+- required approvals
+- required inputs/artifacts
+- Orbis template identity
+- verification steps
+- completion criteria
+- failure criteria
+
+### Readiness
+
+Titan computes readiness without Logres runtime state:
+
+- `blocked` when dependencies are incomplete or approvals are pending
+- `not_ready` when capabilities are incompatible or required inputs are unavailable
+- `ready` when dependencies, approvals, capabilities, and inputs are satisfied
+- `completed` after explicit completion transition
+
+Graph compilation rejects unknown dependencies and cycles before dispatchability.
+
+### Traversal and parallelism
+
+`topologicalBatches()` returns deterministic dependency batches sorted by task ID. Independent tasks appear in the same batch, preserving explicit parallel branches.
+
+### Handoff
+
+`PlannedTaskHandoff` includes only tasks currently `ready` under the package contract. Runtime lease/running/retry/cancel semantics remain Logres-owned.
+
+## Residue for child tickets
+
+- **MME-1234**: interrupt classes and policy families (audit/scope/review/ship/avoidance) remain outside this graph slice.
+- **MME-1235**: repository/file/test/proposed-change bindings remain outside this graph slice.

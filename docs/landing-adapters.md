@@ -12,7 +12,7 @@ Titan consumes portable input records. It does not own Eloquent models, Landing 
 
 Landing user stories keep their original acceptance criteria. Display tickets consume Titan read models later; this slice does not implement browse or inspect routes.
 
-MME-1226 now defines task-graph and readiness semantics in-package. Remaining non-catalogue residues stay intentionally separated:
+MME-1226 defines task-graph and readiness semantics in-package. MME-1234 defines one portable interrupt/gate contract and append-only resolution history in-package. Remaining non-catalogue residues stay intentionally separated:
 
-- **MME-1234** interrupt/gate families (audit, scope, ship, code-review, avoidance policy objects)
-- **MME-1235** repository/file/test/proposed-change bindings and approval objects tied to those bindings
+- **MME-1234 inventory cutover** for Landing STI `Checkin` subclasses (`AvoidanceInterrupt`, `AuditInterrupt`, `ShipInterrupt`, `CodeReviewInterrupt`, `ScopeInterrupt`) remains out of this package slice.
+- **MME-1235** repository/file/test/proposed-change bindings and approval objects tied to those bindings.

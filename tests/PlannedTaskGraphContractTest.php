@@ -6,6 +6,7 @@ namespace Sifrious\Titan\Tests;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Sifrious\Titan\DecisionReference;
 use Sifrious\Titan\OrbisTemplateId;
 use Sifrious\Titan\PlannedTaskGraphCompiler;
 use Sifrious\Titan\PlannedTaskReadiness;
@@ -34,5 +35,26 @@ final class PlannedTaskGraphContractTest extends TestCase
         self::assertSame(PlannedTaskReadiness::Blocked, $graph->readiness($graph->tasks[0]->id));
         self::assertFalse(property_exists($graph->tasks[0], 'runtimeStatus'));
         self::assertFalse(property_exists($graph->tasks[0], 'leaseId'));
+    }
+
+    #[Test]
+    public function gate_resolution_references_external_decisions_by_identity_only(): void
+    {
+        $graph = (new PlannedTaskGraphCompiler)->compile(PlannedTaskGraphFixtures::scopeGateInput())->graph;
+        self::assertNotNull($graph);
+
+        $resolved = $graph->resolveInterrupt(
+            $graph->interrupts[0]->id,
+            'orual-bot',
+            new \DateTimeImmutable('2026-08-29T06:11:00+00:00'),
+            'Resolved by policy decision.',
+            [new DecisionReference('orual', 'orual:decision-4')],
+        );
+
+        $decision = $resolved->interrupts[0]->history[1]->decisionReferences[0];
+        self::assertSame('orual', $decision->authority);
+        self::assertSame('orual:decision-4', $decision->referenceId);
+        self::assertFalse(property_exists($decision, 'payload'));
+        self::assertFalse(property_exists($decision, 'copiedRecord'));
     }
 }

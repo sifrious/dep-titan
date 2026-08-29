@@ -75,7 +75,17 @@ Graph compilation rejects unknown dependencies and cycles before dispatchability
 
 `PlannedTaskHandoff` includes only tasks currently `ready` under the package contract. Runtime lease/running/retry/cancel semantics remain Logres-owned.
 
+## Planning interrupts and gates
+
+MME-1234 adds interrupt/gate planning constraints that apply before execution. One portable `PlanningInterrupt` contract covers scope/review/audit/ship/avoidance gate types.
+
+- States: `open`, `acknowledged`, `resolved`, `waived`.
+- Blocking states: `open`, `acknowledged`.
+- Resolution history is append-only and remains traceable in immutable history entries.
+- Resolution and waiver require stable decision references (e.g. Orual/Uqbar decision IDs), not copied external records.
+- Graph readiness uses active interrupts in addition to dependency, approval, capability, and input checks.
+
 ## Residue for child tickets
 
-- **MME-1234**: interrupt classes and policy families (audit/scope/review/ship/avoidance) remain outside this graph slice.
 - **MME-1235**: repository/file/test/proposed-change bindings remain outside this graph slice.
+- Interrupt inventory model extraction (Landing STI checkins and specific interrupt model cutovers) remains outside this package slice.

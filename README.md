@@ -48,8 +48,23 @@ Graph readiness is package-computed from dependency completion, approval state, 
 
 Only dependency-complete, approval-complete, capability-compatible, input-ready tasks are emitted in `PlannedTaskHandoff`.
 
+## Planning interrupts and gates
+
+Titan defines one portable interrupt contract for planning gates before dispatch:
+
+- stable interrupt identity
+- affected graph and optional affected task
+- interrupt type (`scope`, `code_review`, `audit`, `ship`, `avoidance`)
+- reason
+- source/evidence references
+- created-by and created-at
+- state (`open`, `acknowledged`, `resolved`, `waived`)
+
+Interrupt state changes are append-only history entries. Resolution and waiver require stable decision references (for example Orual/Uqbar decision identities) and do not copy external records into Titan.
+
+Active interrupts (`open`, `acknowledged`) deterministically block planned-task readiness and therefore block Logres handoff for affected tasks.
+
 ## Out of scope in this slice
 
-- MME-1234 planning interrupts and approval-gate policy families (this slice only supports portable required-approval contracts and readiness).
 - MME-1235 repository/file/proposed-change bindings (task repo/file/test and change proposal contracts stay for that ticket).
-- Catalogue persistence extraction and any UI/browse stories.
+- Catalogue persistence extraction for inventory models and any UI/browse stories.

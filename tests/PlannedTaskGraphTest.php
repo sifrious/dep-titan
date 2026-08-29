@@ -7,7 +7,9 @@ namespace Sifrious\Titan\Tests;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Sifrious\Titan\CapabilityId;
+use Sifrious\Titan\DecisionReference;
 use Sifrious\Titan\InvalidWorkKitTransition;
+use Sifrious\Titan\InterruptId;
 use Sifrious\Titan\OrbisTemplateId;
 use Sifrious\Titan\PlannedTask;
 use Sifrious\Titan\PlannedTaskGraphCompilationInput;
@@ -18,6 +20,7 @@ use Sifrious\Titan\PlannedTaskGraphReadModel;
 use Sifrious\Titan\PlannedTaskGraphStatus;
 use Sifrious\Titan\PlannedTaskId;
 use Sifrious\Titan\PlannedTaskReadiness;
+use Sifrious\Titan\PlanningInterruptState;
 use Sifrious\Titan\RequiredApproval;
 use Sifrious\Titan\RequiredInput;
 use Sifrious\Titan\ScopeFence;
@@ -159,6 +162,98 @@ final class PlannedTaskGraphTest extends TestCase
         self::assertCount(1, $handoff->tasks);
         self::assertSame('planned-task:discover', $handoff->tasks[0]['id']);
         self::assertSame('orbis:agent-template', $handoff->tasks[0]['orbis_template']);
+    }
+
+    #[Test]
+    public function scope_gate_interrupt_blocks_all_tasks_until_resolved(): void
+    {
+        $graph = (new PlannedTaskGraphCompiler)->compile(PlannedTaskGraphFixtures::scopeGateInput())->graph;
+        self::assertNotNull($graph);
+        $taskId = new PlannedTaskId('planned-task:scope-change');
+
+        self::assertSame(PlannedTaskReadiness::Blocked, $graph->readiness($taskId));
+        self::assertSame(['interrupt:scope-gate'], array_map(
+            static fn ($interrupt): string => $interrupt->id->value,
+            $graph->activeInterrupts($taskId),
+        ));
+
+        $resolved = $graph->resolveInterrupt(
+            new InterruptId('interrupt:scope-gate'),
+            'orual-bot',
+            new \DateTimeImmutable('2026-08-29T06:10:00+00:00'),
+            'Scope approval recorded.',
+            [new DecisionReference('orual', 'orual:decision-2')],
+        );
+
+        self::assertSame(PlannedTaskReadiness::Ready, $resolved->readiness($taskId));
+        self::assertSame(PlanningInterruptState::Resolved, $resolved->interrupts[0]->state());
+        self::assertCount(2, $resolved->interrupts[0]->history);
+    }
+
+    #[Test]
+    public function review_gate_interrupt_blocks_targeted_task_until_waived(): void
+    {
+        $graph = (new PlannedTaskGraphCompiler)->compile(PlannedTaskGraphFixtures::reviewGateInput())->graph;
+        self::assertNotNull($graph);
+        $taskId = new PlannedTaskId('planned-task:review-change');
+
+        self::assertSame(PlannedTaskReadiness::Blocked, $graph->readiness($taskId));
+
+        $waived = $graph->waiveInterrupt(
+            new InterruptId('interrupt:review-gate'),
+            'uqbar-bot',
+            new \DateTimeImmutable('2026-08-29T06:12:00+00:00'),
+            'Review gate waived by policy.',
+            [new DecisionReference('uqbar', 'uqbar:waive-2')],
+        );
+
+        self::assertSame(PlannedTaskReadiness::Ready, $waived->readiness($taskId));
+        self::assertSame(PlanningInterruptState::Waived, $waived->interrupts[0]->state());
+    }
+
+    #[Test]
+    public function multiple_simultaneous_interrupts_remain_blocking_until_all_are_satisfied(): void
+    {
+        $graph = (new PlannedTaskGraphCompiler)->compile(PlannedTaskGraphFixtures::simultaneousInterruptsInput())->graph;
+        self::assertNotNull($graph);
+        $targeted = new PlannedTaskId('planned-task:targeted');
+        $other = new PlannedTaskId('planned-task:other');
+
+        self::assertSame(PlannedTaskReadiness::Blocked, $graph->readiness($targeted));
+        self::assertSame(PlannedTaskReadiness::Blocked, $graph->readiness($other));
+        self::assertCount(2, $graph->activeInterrupts($targeted));
+        self::assertCount(1, $graph->activeInterrupts($other));
+
+        $partiallyCleared = $graph->resolveInterrupt(
+            new InterruptId('interrupt:scope-all'),
+            'orual-bot',
+            new \DateTimeImmutable('2026-08-29T06:13:00+00:00'),
+            'Global scope gate resolved.',
+            [new DecisionReference('orual', 'orual:decision-3')],
+        );
+        self::assertSame(PlannedTaskReadiness::Blocked, $partiallyCleared->readiness($targeted));
+        self::assertSame(PlannedTaskReadiness::Ready, $partiallyCleared->readiness($other));
+
+        $cleared = $partiallyCleared->waiveInterrupt(
+            new InterruptId('interrupt:review-targeted'),
+            'uqbar-bot',
+            new \DateTimeImmutable('2026-08-29T06:14:00+00:00'),
+            'Targeted review gate waived.',
+            [new DecisionReference('uqbar', 'uqbar:waive-3')],
+        );
+        self::assertSame(PlannedTaskReadiness::Ready, $cleared->readiness($targeted));
+    }
+
+    #[Test]
+    public function resolved_and_waived_interrupts_do_not_block_readiness_or_handoff(): void
+    {
+        $graph = (new PlannedTaskGraphCompiler)->compile(PlannedTaskGraphFixtures::resolvedAndWaivedInput())->graph;
+        self::assertNotNull($graph);
+        $taskId = new PlannedTaskId('planned-task:waive-target');
+
+        self::assertSame(PlannedTaskReadiness::Ready, $graph->readiness($taskId));
+        self::assertSame([], $graph->activeInterrupts($taskId));
+        self::assertCount(1, $graph->handoff()->tasks);
     }
 
     #[Test]

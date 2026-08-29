@@ -12,16 +12,20 @@ final readonly class PlannedTaskGraph
 
     public array $selectedCapabilities;
 
+    public array $interrupts;
+
     public function __construct(
         public PlannedTaskGraphId $id,
         public WorkKitId $workKitId,
         array $tasks,
         array $selectedCapabilities,
+        array $interrupts,
         public PlannedTaskGraphStatus $status,
         public ?PlannedTaskGraphId $supersedes = null,
     ) {
         $this->tasks = array_values($tasks);
         $this->selectedCapabilities = array_values($selectedCapabilities);
+        $this->interrupts = array_values($interrupts);
 
         if ($this->tasks === []) {
             throw new InvalidArgumentException('A planned-task graph requires at least one task.');
@@ -47,7 +51,7 @@ final readonly class PlannedTaskGraph
             return PlannedTaskReadiness::Completed;
         }
 
-        if ($this->blockedByDependencies($id) !== [] || $this->pendingApprovals($id) !== []) {
+        if ($this->blockedByDependencies($id) !== [] || $this->pendingApprovals($id) !== [] || $this->activeInterrupts($id) !== []) {
             return PlannedTaskReadiness::Blocked;
         }
 
@@ -179,6 +183,21 @@ final readonly class PlannedTaskGraph
         ));
     }
 
+    public function activeInterrupts(PlannedTaskId $id): array
+    {
+        $active = array_values(array_filter(
+            $this->interrupts,
+            static fn (PlanningInterrupt $interrupt): bool => $interrupt->affects($id),
+        ));
+
+        usort(
+            $active,
+            static fn (PlanningInterrupt $left, PlanningInterrupt $right): int => $left->id->value <=> $right->id->value,
+        );
+
+        return $active;
+    }
+
     public function isDispatchable(): bool
     {
         return $this->status === PlannedTaskGraphStatus::Dispatchable;
@@ -257,6 +276,7 @@ final readonly class PlannedTaskGraph
             workKitId: $this->workKitId,
             tasks: $tasks,
             selectedCapabilities: $this->selectedCapabilities,
+            interrupts: $this->interrupts,
             status: PlannedTaskGraphStatus::Planned,
             supersedes: $this->id,
         );
@@ -269,9 +289,31 @@ final readonly class PlannedTaskGraph
             workKitId: $this->workKitId,
             tasks: $this->tasks,
             selectedCapabilities: $this->selectedCapabilities,
+            interrupts: $this->interrupts,
             status: $status,
             supersedes: $this->supersedes,
         );
+    }
+
+    public function acknowledgeInterrupt(InterruptId $interruptId, string $actor, \DateTimeImmutable $occurredAt, string $note): self
+    {
+        $interrupt = $this->interrupt($interruptId)->acknowledge($actor, $occurredAt, $note);
+
+        return $this->replaceInterrupt($interrupt);
+    }
+
+    public function resolveInterrupt(InterruptId $interruptId, string $actor, \DateTimeImmutable $occurredAt, string $note, array $decisionReferences): self
+    {
+        $interrupt = $this->interrupt($interruptId)->resolve($actor, $occurredAt, $note, $decisionReferences);
+
+        return $this->replaceInterrupt($interrupt);
+    }
+
+    public function waiveInterrupt(InterruptId $interruptId, string $actor, \DateTimeImmutable $occurredAt, string $note, array $decisionReferences): self
+    {
+        $interrupt = $this->interrupt($interruptId)->waive($actor, $occurredAt, $note, $decisionReferences);
+
+        return $this->replaceInterrupt($interrupt);
     }
 
     private function replaceTask(PlannedTask $replacement): self
@@ -286,6 +328,7 @@ final readonly class PlannedTaskGraph
             workKitId: $this->workKitId,
             tasks: $tasks,
             selectedCapabilities: $this->selectedCapabilities,
+            interrupts: $this->interrupts,
             status: $this->status === PlannedTaskGraphStatus::Superseded
                 ? PlannedTaskGraphStatus::Superseded
                 : $this->statusForTasks($tasks),
@@ -300,6 +343,7 @@ final readonly class PlannedTaskGraph
             workKitId: $this->workKitId,
             tasks: $tasks,
             selectedCapabilities: $this->selectedCapabilities,
+            interrupts: $this->interrupts,
             status: PlannedTaskGraphStatus::Planned,
             supersedes: $this->supersedes,
         );
@@ -311,5 +355,36 @@ final readonly class PlannedTaskGraph
         }
 
         return PlannedTaskGraphStatus::Planned;
+    }
+
+    private function interrupt(InterruptId $interruptId): PlanningInterrupt
+    {
+        foreach ($this->interrupts as $interrupt) {
+            if ($interrupt->id->value === $interruptId->value) {
+                return $interrupt;
+            }
+        }
+
+        throw new InvalidWorkKitTransition("Interrupt {$interruptId->value} is not in graph {$this->id->value}.");
+    }
+
+    private function replaceInterrupt(PlanningInterrupt $replacement): self
+    {
+        $interrupts = array_map(
+            static fn (PlanningInterrupt $interrupt): PlanningInterrupt => $interrupt->id->value === $replacement->id->value ? $replacement : $interrupt,
+            $this->interrupts,
+        );
+
+        return new self(
+            id: $this->id,
+            workKitId: $this->workKitId,
+            tasks: $this->tasks,
+            selectedCapabilities: $this->selectedCapabilities,
+            interrupts: $interrupts,
+            status: $this->status === PlannedTaskGraphStatus::Superseded
+                ? PlannedTaskGraphStatus::Superseded
+                : $this->statusForTasks($this->tasks),
+            supersedes: $this->supersedes,
+        );
     }
 }

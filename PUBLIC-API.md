@@ -47,3 +47,13 @@ The package is pre-release. These names define the current consumer surface; sem
 - `PlannedTaskGraph`
 - `PlannedTaskGraphReadModel`
 - `PlannedTaskHandoff`
+
+## Planning interrupts and gates
+
+- `InterruptId`
+- `PlanningInterruptType`
+- `PlanningInterruptState`
+- `EvidenceReference`
+- `DecisionReference`
+- `InterruptHistoryEntry`
+- `PlanningInterrupt`

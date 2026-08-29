@@ -19,6 +19,7 @@ final readonly class PlannedTaskGraphCompiler
             workKitId: $input->workKit->id,
             tasks: $input->tasks,
             selectedCapabilities: $input->workKit->selectedCapabilities,
+            interrupts: $input->interrupts,
             status: PlannedTaskGraphStatus::Planned,
             supersedes: $input->supersedes,
         );
@@ -112,6 +113,72 @@ final readonly class PlannedTaskGraphCompiler
             }
         }
 
+        foreach ($input->interrupts as $index => $interrupt) {
+            if (! $interrupt instanceof PlanningInterrupt) {
+                $failures[] = new PlannedTaskGraphFailure(
+                    'interrupt_invalid',
+                    "interrupts.{$index}",
+                    'Every graph interrupt must use the portable interrupt contract.',
+                );
+                continue;
+            }
+
+            if ($interrupt->graphId->value !== $input->id->value) {
+                $failures[] = new PlannedTaskGraphFailure(
+                    'interrupt_graph_mismatch',
+                    "interrupts.{$index}.graph_id",
+                    'Every interrupt must target the graph being compiled.',
+                );
+            }
+
+            if ($interrupt->taskId !== null && ! isset($byId[$interrupt->taskId->value])) {
+                $failures[] = new PlannedTaskGraphFailure(
+                    'interrupt_task_unknown',
+                    "interrupts.{$index}.task_id",
+                    'Interrupt task references must exist in the graph.',
+                );
+            }
+
+            foreach ($interrupt->evidenceReferences as $evidenceIndex => $reference) {
+                if (! $reference instanceof EvidenceReference) {
+                    $failures[] = new PlannedTaskGraphFailure(
+                        'interrupt_evidence_invalid',
+                        "interrupts.{$index}.evidence_references.{$evidenceIndex}",
+                        'Interrupt evidence references must be stable source references.',
+                    );
+                }
+            }
+
+            foreach ($interrupt->history as $historyIndex => $entry) {
+                if (! $entry instanceof InterruptHistoryEntry) {
+                    $failures[] = new PlannedTaskGraphFailure(
+                        'interrupt_history_invalid',
+                        "interrupts.{$index}.history.{$historyIndex}",
+                        'Interrupt history must be append-only state entries.',
+                    );
+                    continue;
+                }
+
+                foreach ($entry->decisionReferences as $decisionIndex => $decisionReference) {
+                    if (! $decisionReference instanceof DecisionReference) {
+                        $failures[] = new PlannedTaskGraphFailure(
+                            'interrupt_decision_reference_invalid',
+                            "interrupts.{$index}.history.{$historyIndex}.decision_references.{$decisionIndex}",
+                            'Gate decisions must reference stable Orual/Uqbar identifiers, not copied records.',
+                        );
+                    }
+                }
+            }
+
+            if (! $this->hasValidInterruptHistory($interrupt)) {
+                $failures[] = new PlannedTaskGraphFailure(
+                    'interrupt_history_transition_invalid',
+                    "interrupts.{$index}.history",
+                    'Interrupt history must start open and only append acknowledged/resolved/waived transitions.',
+                );
+            }
+        }
+
         foreach ($input->tasks as $index => $task) {
             if (! $task instanceof PlannedTask) {
                 continue;
@@ -185,5 +252,38 @@ final readonly class PlannedTaskGraphCompiler
         }
 
         return false;
+    }
+
+    private function hasValidInterruptHistory(PlanningInterrupt $interrupt): bool
+    {
+        $history = $interrupt->history;
+
+        if ($history === []) {
+            return false;
+        }
+
+        if (! $history[0] instanceof InterruptHistoryEntry || $history[0]->state !== PlanningInterruptState::Open) {
+            return false;
+        }
+
+        for ($index = 1; $index < count($history); $index++) {
+            if (! $history[$index - 1] instanceof InterruptHistoryEntry || ! $history[$index] instanceof InterruptHistoryEntry) {
+                return false;
+            }
+
+            $previous = $history[$index - 1]->state;
+            $current = $history[$index]->state;
+            $allowed = match ($previous) {
+                PlanningInterruptState::Open => [PlanningInterruptState::Acknowledged, PlanningInterruptState::Resolved, PlanningInterruptState::Waived],
+                PlanningInterruptState::Acknowledged => [PlanningInterruptState::Resolved, PlanningInterruptState::Waived],
+                PlanningInterruptState::Resolved, PlanningInterruptState::Waived => [],
+            };
+
+            if (! in_array($current, $allowed, true)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

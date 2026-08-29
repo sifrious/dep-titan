@@ -1,0 +1,46 @@
+{
+    "schema_version": 1,
+    "project": "Titan",
+    "updated_at": "2026-08-29T05:55:00Z",
+    "facts": [
+        {"id": "F-001", "statement": "Titan is a framework-neutral work-kit compiler with PHP as its only runtime dependency."},
+        {"id": "F-002", "statement": "A compiled work kit names outcome, first action, dependencies, scope fence, selected Quain capability identities, verification steps, completion criteria, and failure criteria."},
+        {"id": "F-003", "statement": "CodeAction, PlanCommit, PlanPr, PlanOption, and Checkin enter Titan as portable adapter DTOs that preserve Landing source identifiers and provenance."},
+        {"id": "F-004", "statement": "Dependency-incomplete work can be assembled but cannot be presented as executable or dispatchable."},
+        {"id": "F-005", "statement": "Plan option selection and checkin recording are explicit transitions and are not inferred from timestamps or UI state."},
+        {"id": "F-006", "statement": "Logres owns current execution after dispatch; Titan does not own runtime or current-state."}
+    ],
+    "assumptions": [
+        {"id": "A-001", "statement": "Hosts will map existing Landing Eloquent rows onto the portable DTOs until catalogue extraction tickets land."},
+        {"id": "A-002", "statement": "Empty dependency sets are complete and therefore executable when the rest of the contract is present."},
+        {"id": "A-003", "statement": "When no plan options are supplied, the CodeAction intent is a sufficient outcome for compilation."}
+    ],
+    "decisions": [
+        {"id": "D-001", "decision": "Selected capabilities are Quain identities only.", "rationale": "Titan must not duplicate capability semantics."},
+        {"id": "D-002", "decision": "Compilation accepts assembled kits when dependencies are incomplete and refuses executable presentation.", "rationale": "The contract can be named for inspection without becoming dispatchable."},
+        {"id": "D-003", "decision": "Changing a selected option requires dismiss then select.", "rationale": "Lifecycle must stay explicit and testable."},
+        {"id": "D-004", "decision": "Catalogue persistence, task graphs, interrupts, and repository bindings stay on child tickets.", "rationale": "MME-1211 is the compile contract, not the rest of Titan."}
+    ],
+    "constraints": [
+        "Titan does not depend on Laravel, Eloquent, HTTP, queues, Blade, NativePHP, or provider SDKs.",
+        "Titan does not own UI rendering or provider-specific execution.",
+        "Titan does not compute Logres runtime readiness.",
+        "Public package consumers must not require licenses or private dependencies."
+    ],
+    "open_questions": [
+        {"id": "Q-001", "question": "Which exact Landing columns survive catalogue extraction versus remaining host-only?"},
+        {"id": "Q-002", "question": "How should MME-1226 attach a planned-task graph to an already compiled work kit without rewriting this contract?"}
+    ],
+    "glossary": [
+        {"term": "Work kit", "definition": "The compiled, presentation-neutral description of intended executable work."},
+        {"term": "Assembled", "definition": "A compiled kit that names the contract but is not dependency-complete."},
+        {"term": "Executable", "definition": "A compiled kit whose declared dependencies are satisfied and that may be presented for dispatch."},
+        {"term": "Landing adapter residue", "definition": "Eloquent, UI, or mixed-ownership behavior that remains in Landing until a child ticket extracts it."}
+    ],
+    "features": [
+        {"id": "MME-1211", "name": "Compile planning records into executable work kits", "stage": "v0.1", "status": "implemented"},
+        {"id": "MME-1226", "name": "Executable task graph and readiness", "stage": "later", "status": "blocked"},
+        {"id": "MME-1234", "name": "Planning interrupts and approval gates", "stage": "later", "status": "blocked"},
+        {"id": "MME-1235", "name": "Repository and proposed-change bindings", "stage": "later", "status": "blocked"}
+    ]
+}

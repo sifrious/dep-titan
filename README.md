@@ -1,5 +1,28 @@
-# Titan
+# Titan Package
 
-Placeholder for the `sifrious/titan` package.
+This repository contains the framework-neutral contracts that compile planning records into executable work kits.
 
-Nothing is implemented yet.
+It deliberately has no Laravel, Eloquent, queue, HTTP, Blade, NativePHP, or provider-SDK dependency.
+
+The current consumer surface is recorded in [PUBLIC-API.md](PUBLIC-API.md).
+
+## Development
+
+```bash
+composer install
+composer check
+```
+
+Local applications consume this package through a Composer path repository during development.
+
+## Work kits
+
+Titan owns the transition from portable planning records into dependency-complete work kits. A compiled kit names outcome, first action, dependencies, scope fence, selected Quain capability identities, verification steps, completion criteria, and failure criteria.
+
+Logres executes after dispatch. Titan does not own runtime or current-state. Funes owns observed historical evidence. Quain owns capability semantics; Titan stores capability identities only.
+
+## Planning records
+
+`CodeAction`, `PlanCommit`, `PlanPr`, `PlanOption`, and `Checkin` arrive as adapter/input DTOs that preserve Landing source identifiers and provenance. They are not Eloquent models and not UI. Mapping and Landing-only residue are recorded in [docs/landing-adapters.md](docs/landing-adapters.md).
+
+Option selection and checkpoint recording are explicit transitions. Dependency-incomplete work can be assembled for inspection but cannot be presented as executable or dispatchable.

@@ -4,15 +4,21 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "02a37cccd01ca578d7ffd082babceb3b",
+    "content-hash": "521ddb8483d86bef2249585ef4c23999",
     "packages": [
         {
             "name": "quain/core",
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "git@github.com:sifrious/quain.git",
-                "reference": "fb72904b70313213a7fc819dee013c89e81757c3"
+                "url": "https://github.com/sifrious/quain.git",
+                "reference": "6a94c36372e524ce8f93304696e3e339d7ea3be7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/sifrious/quain/zipball/6a94c36372e524ce8f93304696e3e339d7ea3be7",
+                "reference": "6a94c36372e524ce8f93304696e3e339d7ea3be7",
+                "shasum": ""
             },
             "require": {
                 "php": "^8.3",
@@ -35,18 +41,28 @@
                 }
             },
             "license": [
-                "MIT"
+                "proprietary"
             ],
             "description": "Portable capability catalogue: versioned manifests, vocabulary references, skill/agent reads, and remote source inspection.",
-            "time": "2026-08-29T07:16:51+00:00"
+            "support": {
+                "source": "https://github.com/sifrious/quain/tree/main",
+                "issues": "https://github.com/sifrious/quain/issues"
+            },
+            "time": "2026-09-01T21:46:16+00:00"
         },
         {
             "name": "sifrious/elwin",
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "git@github.com:sifrious/dep-elwin.git",
-                "reference": "28b7f00168d72f392cdbef748f016ba0d7dfbce5"
+                "url": "https://github.com/sifrious/dep-elwin.git",
+                "reference": "2d797b65053eef015c9028b54fce3fe6944baee8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/sifrious/dep-elwin/zipball/2d797b65053eef015c9028b54fce3fe6944baee8",
+                "reference": "2d797b65053eef015c9028b54fce3fe6944baee8",
+                "shasum": ""
             },
             "require": {
                 "php": "^8.3",
@@ -76,7 +92,82 @@
                 "proprietary"
             ],
             "description": "Provider-neutral human input, deliberation, and pre-commitment contracts.",
-            "time": "2026-08-29T07:22:30+00:00"
+            "support": {
+                "source": "https://github.com/sifrious/dep-elwin/tree/main",
+                "issues": "https://github.com/sifrious/dep-elwin/issues"
+            },
+            "time": "2026-09-01T23:37:00+00:00"
+        },
+        {
+            "name": "symfony/deprecation-contracts",
+            "version": "v3.7.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/deprecation-contracts.git",
+                "reference": "f3202fa1b5097b0af062dc978b32ecf63404e31d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/deprecation-contracts/zipball/f3202fa1b5097b0af062dc978b32ecf63404e31d",
+                "reference": "f3202fa1b5097b0af062dc978b32ecf63404e31d",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.1"
+            },
+            "type": "library",
+            "extra": {
+                "thanks": {
+                    "url": "https://github.com/symfony/contracts",
+                    "name": "symfony/contracts"
+                },
+                "branch-alias": {
+                    "dev-main": "3.7-dev"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "function.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nicolas Grekas",
+                    "email": "p@tchwork.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "A generic function and convention to trigger deprecation notices",
+            "homepage": "https://symfony.com",
+            "support": {
+                "source": "https://github.com/symfony/deprecation-contracts/tree/v3.7.1"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2026-06-05T06:23:12+00:00"
         },
         {
             "name": "symfony/polyfill-ctype",
@@ -163,20 +254,20 @@
         },
         {
             "name": "symfony/process",
-            "version": "v8.1.5",
+            "version": "v7.4.18",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/process.git",
-                "reference": "d863f5e70d7c87abb906ac11b61f83036093000b"
+                "reference": "058d17fc284cce14efb2385783b55014a461b176"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/process/zipball/d863f5e70d7c87abb906ac11b61f83036093000b",
-                "reference": "d863f5e70d7c87abb906ac11b61f83036093000b",
+                "url": "https://api.github.com/repos/symfony/process/zipball/058d17fc284cce14efb2385783b55014a461b176",
+                "reference": "058d17fc284cce14efb2385783b55014a461b176",
                 "shasum": ""
             },
             "require": {
-                "php": ">=8.4.1"
+                "php": ">=8.2"
             },
             "type": "library",
             "autoload": {
@@ -204,7 +295,7 @@
             "description": "Executes commands in sub-processes",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/process/tree/v8.1.5"
+                "source": "https://github.com/symfony/process/tree/v7.4.18"
             },
             "funding": [
                 {
@@ -224,32 +315,32 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-08-21T17:47:34+00:00"
+            "time": "2026-08-21T17:40:08+00:00"
         },
         {
             "name": "symfony/yaml",
-            "version": "v8.1.5",
+            "version": "v7.4.18",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
-                "reference": "b3fc9e8888eeb9daddc33bfbd15d282a61f543cd"
+                "reference": "4cef939e55b8a21c5780418de0d98ab00d0736e1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/yaml/zipball/b3fc9e8888eeb9daddc33bfbd15d282a61f543cd",
-                "reference": "b3fc9e8888eeb9daddc33bfbd15d282a61f543cd",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/4cef939e55b8a21c5780418de0d98ab00d0736e1",
+                "reference": "4cef939e55b8a21c5780418de0d98ab00d0736e1",
                 "shasum": ""
             },
             "require": {
-                "php": ">=8.4.1",
+                "php": ">=8.2",
+                "symfony/deprecation-contracts": "^2.5|^3",
                 "symfony/polyfill-ctype": "^1.8"
             },
             "conflict": {
-                "symfony/console": "<7.4"
+                "symfony/console": "<6.4"
             },
             "require-dev": {
-                "symfony/console": "^7.4|^8.0",
-                "yaml/yaml-test-suite": "*"
+                "symfony/console": "^6.4|^7.0|^8.0"
             },
             "bin": [
                 "Resources/bin/yaml-lint"
@@ -280,7 +371,7 @@
             "description": "Loads and dumps YAML files",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/yaml/tree/v8.1.5"
+                "source": "https://github.com/symfony/yaml/tree/v7.4.18"
             },
             "funding": [
                 {
@@ -300,7 +391,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-08-21T12:16:08+00:00"
+            "time": "2026-08-30T00:47:26+00:00"
         }
     ],
     "packages-dev": [
@@ -2009,5 +2100,8 @@
         "php": "^8.3"
     },
     "platform-dev": {},
+    "platform-overrides": {
+        "php": "8.3.0"
+    },
     "plugin-api-version": "2.9.0"
 }

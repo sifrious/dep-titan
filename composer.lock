@@ -4,14 +4,14 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "760a7211d16891108768e09392daa3a9",
+    "content-hash": "02a37cccd01ca578d7ffd082babceb3b",
     "packages": [
         {
             "name": "quain/core",
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "git@github.com-sifrious:sifrious/quain.git",
+                "url": "git@github.com:sifrious/quain.git",
                 "reference": "fb72904b70313213a7fc819dee013c89e81757c3"
             },
             "require": {
@@ -45,7 +45,7 @@
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "git@github.com-sifrious:sifrious/dep-elwin.git",
+                "url": "git@github.com:sifrious/dep-elwin.git",
                 "reference": "28b7f00168d72f392cdbef748f016ba0d7dfbce5"
             },
             "require": {

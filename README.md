@@ -68,3 +68,17 @@ Active interrupts (`open`, `acknowledged`) deterministically block planned-task 
 
 - MME-1235 repository/file/proposed-change bindings (task repo/file/test and change proposal contracts stay for that ticket).
 - Catalogue persistence extraction for inventory models and any UI/browse stories.
+
+## Durable plans and proposal promotion
+
+Titan also owns provider-neutral, durable `Plan` and `PlanStep` contracts.
+
+Plans retain deliberation lineage and lifecycle independently of any model session or execution runtime. `PlanMaterialization` records the explicit zero/one/many mapping from a step to execution requests while leaving those requests to Logres.
+
+`PromotionRequest` is the boundary for turning an Elwin Twinkle into Titan-owned work. It retains the exact Twinkle version, provenance, selected context and Quain concept references. `TwinklePromoter` makes exact retries idempotent and rejects conflicting reuse of an idempotency key; it never mutates the source Twinkle.
+
+
+## License
+
+Copyright © 2026 Sifrious. All rights reserved. This is publicly viewable
+proprietary software, not open-source software. See [LICENSE.md](LICENSE.md).

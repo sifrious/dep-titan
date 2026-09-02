@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "521ddb8483d86bef2249585ef4c23999",
+    "content-hash": "521f6f9ceab958872deffa59c417bdce",
     "packages": [
         {
             "name": "quain/core",
@@ -1985,6 +1985,47 @@
                 }
             ],
             "time": "2025-02-07T05:00:38+00:00"
+        },
+        {
+            "name": "sifrious/harness-contract-fixtures",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/sifrious/dep-harness-contract-fixtures.git",
+                "reference": "d1e25c6ca98f090236ffb0325f4232c03a3c017d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/sifrious/dep-harness-contract-fixtures/zipball/d1e25c6ca98f090236ffb0325f4232c03a3c017d",
+                "reference": "d1e25c6ca98f090236ffb0325f4232c03a3c017d",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.3"
+            },
+            "require-dev": {
+                "opis/json-schema": "^2.6"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Sifrious\\HarnessContractFixtures\\": "src/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "php bin/verify"
+                ]
+            },
+            "license": [
+                "proprietary"
+            ],
+            "description": "Sanitized executable fixtures for cross-package Harness contract tests.",
+            "support": {
+                "source": "https://github.com/sifrious/dep-harness-contract-fixtures/tree/v1.0.0",
+                "issues": "https://github.com/sifrious/dep-harness-contract-fixtures/issues"
+            },
+            "time": "2026-09-02T02:36:53+00:00"
         },
         {
             "name": "staabm/side-effects-detector",

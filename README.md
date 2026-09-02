@@ -43,10 +43,13 @@ Titan can compile an executable work kit into a planned-task dependency graph wi
 - verification steps
 - completion criteria
 - failure criteria
+- portable Task/PlanStep/PlanTask source meanings (`position` remains display metadata; `project_id` is not workspace identity; `done_at` is planning completion)
 
 Graph readiness is package-computed from dependency completion, approval state, capability compatibility, and required inputs. It uses planning labels (`ready`, `blocked`, `not_ready`, `completed`) and does not expose Logres runtime labels.
 
-Only dependency-complete, approval-complete, capability-compatible, input-ready tasks are emitted in `PlannedTaskHandoff`.
+Only dependency-complete, approval-complete, capability-compatible, input-ready tasks are emitted in `PlannedTaskHandoff`. Planning completion additionally requires a passing, versioned verification proof with immutable evidence references. Superseding a graph preserves its historical bytes while shared version authority prevents the stale graph from producing another handoff.
+
+Hosts rehydrating a graph must inject `PlannedTaskGraphVersionAuthority` from their durable current-version record. The completion and supersession APIs intentionally require proof and return the explicit retired/successor transition; this is a pre-release contract correction from the earlier draft API.
 
 ## Planning interrupts and gates
 

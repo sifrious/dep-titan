@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Sifrious\Titan\DecisionReference;
 use Sifrious\Titan\OrbisTemplateId;
 use Sifrious\Titan\PlannedTaskGraphCompiler;
+use Sifrious\Titan\PlannedTaskGraphReadModel;
 use Sifrious\Titan\PlannedTaskReadiness;
 use Sifrious\Titan\Tests\Fixtures\PlannedTaskGraphFixtures;
 
@@ -56,5 +57,27 @@ final class PlannedTaskGraphContractTest extends TestCase
         self::assertSame('orual:decision-4', $decision->referenceId);
         self::assertFalse(property_exists($decision, 'payload'));
         self::assertFalse(property_exists($decision, 'copiedRecord'));
+    }
+
+    #[Test]
+    public function legacy_task_plan_step_and_plan_task_meanings_survive_without_driving_graph_order(): void
+    {
+        $graph = (new PlannedTaskGraphCompiler)->compile(PlannedTaskGraphFixtures::parallelInput())->graph;
+        self::assertNotNull($graph);
+
+        $model = PlannedTaskGraphReadModel::fromGraph($graph);
+        $legacy = $model->tasks[0]['legacy_semantics'];
+
+        self::assertSame('task:inspect-a', $legacy['task_id']);
+        self::assertSame('plan-step:implementation', $legacy['plan_step_id']);
+        self::assertSame('project:planning-record', $legacy['project_id']);
+        self::assertSame(10, $legacy['position']);
+        self::assertNull($legacy['done_at']);
+        self::assertTrue($legacy['discipline_task']);
+        self::assertFalse($legacy['note_task']);
+        self::assertSame(
+            [['planned-task:inspect-a', 'planned-task:inspect-b'], ['planned-task:integrate']],
+            $model->topologicalBatches,
+        );
     }
 }

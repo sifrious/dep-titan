@@ -8,16 +8,20 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Sifrious\Titan\CapabilityId;
 use Sifrious\Titan\DecisionReference;
+use Sifrious\Titan\EvidenceReference;
 use Sifrious\Titan\InvalidWorkKitTransition;
 use Sifrious\Titan\InterruptId;
+use Sifrious\Titan\LegacyPlanTaskSemantics;
 use Sifrious\Titan\OrbisTemplateId;
 use Sifrious\Titan\PlannedTask;
+use Sifrious\Titan\PlannedTaskCompletionProof;
 use Sifrious\Titan\PlannedTaskGraphCompilationInput;
 use Sifrious\Titan\PlannedTaskGraphCompilationStatus;
 use Sifrious\Titan\PlannedTaskGraphCompiler;
 use Sifrious\Titan\PlannedTaskGraphId;
 use Sifrious\Titan\PlannedTaskGraphReadModel;
 use Sifrious\Titan\PlannedTaskGraphStatus;
+use Sifrious\Titan\PlannedTaskGraphVersionAuthority;
 use Sifrious\Titan\PlannedTaskId;
 use Sifrious\Titan\PlannedTaskReadiness;
 use Sifrious\Titan\PlanningInterruptState;
@@ -133,8 +137,8 @@ final class PlannedTaskGraphTest extends TestCase
         self::assertNotNull($graph);
 
         $advanced = $graph
-            ->complete(new PlannedTaskId('planned-task:discover'))
-            ->complete(new PlannedTaskId('planned-task:implement'));
+            ->complete(new PlannedTaskId('planned-task:discover'), self::passingProof('evidence:discover'))
+            ->complete(new PlannedTaskId('planned-task:implement'), self::passingProof('evidence:implement'));
 
         self::assertSame(PlannedTaskReadiness::Completed, $advanced->readiness(new PlannedTaskId('planned-task:discover')));
         self::assertSame(PlannedTaskReadiness::Completed, $advanced->readiness(new PlannedTaskId('planned-task:implement')));
@@ -147,7 +151,7 @@ final class PlannedTaskGraphTest extends TestCase
         $this->expectException(InvalidWorkKitTransition::class);
 
         $graph = (new PlannedTaskGraphCompiler)->compile(PlannedTaskGraphFixtures::chainInput())->graph;
-        $graph?->complete(new PlannedTaskId('planned-task:implement'));
+        $graph?->complete(new PlannedTaskId('planned-task:implement'), self::passingProof('evidence:implement'));
     }
 
     #[Test]
@@ -162,6 +166,9 @@ final class PlannedTaskGraphTest extends TestCase
         self::assertCount(1, $handoff->tasks);
         self::assertSame('planned-task:discover', $handoff->tasks[0]['id']);
         self::assertSame('orbis:agent-template', $handoff->tasks[0]['orbis_template']);
+        self::assertSame('Planned-task execution scope is explicit.', $handoff->tasks[0]['scope_fence']['description']);
+        self::assertArrayHasKey('required_approvals', $handoff->tasks[0]);
+        self::assertArrayHasKey('required_inputs', $handoff->tasks[0]);
     }
 
     #[Test]
@@ -262,14 +269,31 @@ final class PlannedTaskGraphTest extends TestCase
         $first = (new PlannedTaskGraphCompiler)->compile(PlannedTaskGraphFixtures::chainInput())->graph;
         self::assertNotNull($first);
 
-        $second = $first->supersede(
+        $transition = $first->supersede(
             new PlannedTaskGraphId('planned-graph:chain:v2'),
             [...$first->tasks],
         );
+        $second = $transition->successor;
 
         self::assertSame('planned-graph:chain', $second->supersedes?->value);
-        self::assertSame('planned-graph:chain', $first->id->value);
-        self::assertNull($first->supersedes);
+        self::assertSame(PlannedTaskGraphStatus::Superseded, $transition->retired->status);
+        self::assertFalse($transition->retired->isDispatchable());
+        self::assertFalse($first->isDispatchable());
+        self::assertSame('planned-graph:chain', $transition->retired->id->value);
+        self::assertNull($transition->retired->supersedes);
+
+        $rehydratedOld = new \Sifrious\Titan\PlannedTaskGraph(
+            id: $first->id,
+            workKitId: $first->workKitId,
+            tasks: $first->tasks,
+            selectedCapabilities: $first->selectedCapabilities,
+            interrupts: $first->interrupts,
+            versionAuthority: new PlannedTaskGraphVersionAuthority($second->id),
+            status: PlannedTaskGraphStatus::Dispatchable,
+        );
+        self::assertFalse($rehydratedOld->isDispatchable());
+        $this->expectException(InvalidWorkKitTransition::class);
+        $first->handoff();
     }
 
     #[Test]
@@ -309,6 +333,7 @@ final class PlannedTaskGraphTest extends TestCase
                         verificationSteps: ['Verify outcome.'],
                         completionCriteria: ['Complete objective.'],
                         failureCriteria: ['Fail if objective is unmet.'],
+                        legacySemantics: new LegacyPlanTaskSemantics('task:single', 'plan-step:single'),
                     ),
                 ],
             ),
@@ -316,5 +341,62 @@ final class PlannedTaskGraphTest extends TestCase
 
         self::assertSame(PlannedTaskGraphCompilationStatus::Rejected, $result->status);
         self::assertSame(['work_kit_not_executable'], array_map(static fn ($failure): string => $failure->code, $result->failures));
+    }
+
+    #[Test]
+    public function completion_requires_passing_independent_evidence(): void
+    {
+        $graph = (new PlannedTaskGraphCompiler)->compile(PlannedTaskGraphFixtures::chainInput())->graph;
+        self::assertNotNull($graph);
+
+        $this->expectException(InvalidWorkKitTransition::class);
+        $graph->complete(
+            new PlannedTaskId('planned-task:discover'),
+            new PlannedTaskCompletionProof(
+                verificationPlanVersion: 'verification-plan:v1',
+                evidenceReferences: [new EvidenceReference('logres', 'evidence:failing-test')],
+                verificationPassed: false,
+                completionCriteriaSatisfied: true,
+                failureCriteriaTriggered: true,
+                completedAt: new \DateTimeImmutable('2026-09-02T03:00:00+00:00'),
+            ),
+        );
+    }
+
+    #[Test]
+    public function direct_construction_cannot_bypass_completion_proof(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        new PlannedTask(
+            id: new PlannedTaskId('planned-task:bypass'),
+            objective: 'Objective.',
+            outcome: 'Outcome.',
+            firstAction: 'First action.',
+            dependencies: [],
+            scopeFence: new ScopeFence('Explicit scope.'),
+            requiredCapabilities: [],
+            requiredApprovals: [],
+            requiredInputs: [],
+            orbisTemplate: new OrbisTemplateId('orbis:agent-template'),
+            verificationSteps: ['Verify.'],
+            completionCriteria: ['Complete.'],
+            failureCriteria: ['Fail.'],
+            completed: true,
+            completionProof: null,
+            legacySemantics: new LegacyPlanTaskSemantics('task:bypass', 'plan-step:bypass'),
+        );
+    }
+
+    private static function passingProof(string $evidenceReference): PlannedTaskCompletionProof
+    {
+        return new PlannedTaskCompletionProof(
+            verificationPlanVersion: 'verification-plan:v1',
+            evidenceReferences: [new EvidenceReference('logres', $evidenceReference)],
+            verificationPassed: true,
+            completionCriteriaSatisfied: true,
+            failureCriteriaTriggered: false,
+            completedAt: new \DateTimeImmutable('2026-09-02T03:00:00+00:00'),
+        );
     }
 }

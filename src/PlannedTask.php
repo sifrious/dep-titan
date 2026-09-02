@@ -38,6 +38,8 @@ final readonly class PlannedTask
         array $failureCriteria,
         public bool $explicitlyParallel = false,
         public bool $completed = false,
+        public ?PlannedTaskCompletionProof $completionProof = null,
+        public ?LegacyPlanTaskSemantics $legacySemantics = null,
     ) {
         foreach ([['objective', $objective], ['outcome', $outcome], ['first_action', $firstAction]] as [$field, $value]) {
             if (trim($value) === '') {
@@ -64,9 +66,23 @@ final readonly class PlannedTask
         if ($this->failureCriteria === []) {
             throw new InvalidArgumentException('A planned task requires failure criteria.');
         }
+
+        if ($completed !== ($completionProof !== null && $completionProof->permitsCompletion())) {
+            throw new InvalidArgumentException('Planning completion must be backed by passing completion proof.');
+        }
+
+        if ($legacySemantics !== null) {
+            if (($legacySemantics->doneAt !== null) !== $completed) {
+                throw new InvalidArgumentException('PlanTask done_at must exactly represent planning completion.');
+            }
+
+            if ($completed && $legacySemantics->doneAt != $completionProof?->completedAt) {
+                throw new InvalidArgumentException('PlanTask done_at must match completion proof time.');
+            }
+        }
     }
 
-    public function withCompleted(bool $completed): self
+    public function withCompletionProof(PlannedTaskCompletionProof $proof): self
     {
         return new self(
             id: $this->id,
@@ -83,7 +99,9 @@ final readonly class PlannedTask
             completionCriteria: $this->completionCriteria,
             failureCriteria: $this->failureCriteria,
             explicitlyParallel: $this->explicitlyParallel,
-            completed: $completed,
+            completed: true,
+            completionProof: $proof,
+            legacySemantics: $this->legacySemantics?->withPlanningCompletion($proof->completedAt),
         );
     }
 
@@ -105,6 +123,8 @@ final readonly class PlannedTask
             failureCriteria: $this->failureCriteria,
             explicitlyParallel: $this->explicitlyParallel,
             completed: $this->completed,
+            completionProof: $this->completionProof,
+            legacySemantics: $this->legacySemantics,
         );
     }
 
@@ -126,6 +146,8 @@ final readonly class PlannedTask
             failureCriteria: $this->failureCriteria,
             explicitlyParallel: $this->explicitlyParallel,
             completed: $this->completed,
+            completionProof: $this->completionProof,
+            legacySemantics: $this->legacySemantics,
         );
     }
 }

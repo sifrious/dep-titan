@@ -63,7 +63,7 @@ Titan computes readiness without Logres runtime state:
 - `blocked` when dependencies are incomplete or approvals are pending
 - `not_ready` when capabilities are incompatible or required inputs are unavailable
 - `ready` when dependencies, approvals, capabilities, and inputs are satisfied
-- `completed` after explicit completion transition
+- `completed` only after explicit completion with passing, versioned verification proof and immutable evidence references
 
 Graph compilation rejects unknown dependencies and cycles before dispatchability.
 
@@ -73,7 +73,7 @@ Graph compilation rejects unknown dependencies and cycles before dispatchability
 
 ### Handoff
 
-`PlannedTaskHandoff` includes only tasks currently `ready` under the package contract. Runtime lease/running/retry/cancel semantics remain Logres-owned.
+`PlannedTaskHandoff` includes only tasks currently `ready` under the package contract, including scope, approvals, inputs, and graph-version lineage. Supersession activates the successor in shared version authority, so even a retained reference to the historical graph cannot hand off stale work. Runtime lease/running/retry/cancel semantics remain Logres-owned.
 
 ## Planning interrupts and gates
 

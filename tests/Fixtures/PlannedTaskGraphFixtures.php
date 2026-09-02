@@ -11,6 +11,7 @@ use Sifrious\Titan\EvidenceReference;
 use Sifrious\Titan\InterruptId;
 use Sifrious\Titan\OrbisTemplateId;
 use Sifrious\Titan\PlannedTask;
+use Sifrious\Titan\LegacyPlanTaskSemantics;
 use Sifrious\Titan\PlannedTaskGraphCompilationInput;
 use Sifrious\Titan\PlannedTaskGraphId;
 use Sifrious\Titan\PlannedTaskId;
@@ -263,6 +264,14 @@ final class PlannedTaskGraphFixtures
             completionCriteria: ["Complete {$id} contract."],
             failureCriteria: ["Fail {$id} on unmet contract."],
             explicitlyParallel: $explicitlyParallel,
+            legacySemantics: new LegacyPlanTaskSemantics(
+                taskId: str_replace('planned-task:', 'task:', $id),
+                planStepId: 'plan-step:implementation',
+                projectId: 'project:planning-record',
+                position: 10,
+                disciplineTask: true,
+                noteTask: false,
+            ),
         );
     }
 

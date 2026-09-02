@@ -1,7 +1,7 @@
 {
     "schema_version": 1,
     "project": "Titan",
-    "updated_at": "2026-08-29T06:15:00Z",
+    "updated_at": "2026-09-02T03:30:00Z",
     "facts": [
         {"id": "F-001", "statement": "Titan is a framework-neutral work-kit compiler with PHP as its only runtime dependency."},
         {"id": "F-002", "statement": "A compiled work kit names outcome, first action, dependencies, scope fence, selected Quain capability identities, verification steps, completion criteria, and failure criteria."},
@@ -14,7 +14,10 @@
         {"id": "F-009", "statement": "Graph compilation rejects missing dependency references and dependency cycles before a graph can be dispatchable."},
         {"id": "F-010", "statement": "Planned-task handoff emits only ready tasks that are dependency-complete, approval-complete, capability-compatible, and input-ready."},
         {"id": "F-011", "statement": "Titan provides one portable interrupt contract with identity, target graph/task, type, reason, evidence references, created-by/created-at, and append-only resolution history."},
-        {"id": "F-012", "statement": "Active interrupt states open and acknowledged block planning readiness; resolved and waived do not block."}
+        {"id": "F-012", "statement": "Active interrupt states open and acknowledged block planning readiness; resolved and waived do not block."},
+        {"id": "F-013", "statement": "Planning completion requires passing versioned verification proof with immutable evidence references."},
+        {"id": "F-014", "statement": "Superseding a graph preserves historical data while shared version authority prevents stale handoff."},
+        {"id": "F-015", "statement": "Every compiled planned task preserves Task, PlanStep, and PlanTask source meanings; position is display metadata, project_id is not workspace identity, and done_at is planning completion."}
     ],
     "assumptions": [
         {"id": "A-001", "statement": "Hosts will map existing Landing Eloquent rows onto the portable DTOs until catalogue extraction tickets land."},
@@ -31,7 +34,9 @@
         {"id": "D-005", "decision": "MME-1226 graph readiness uses planning labels ready/blocked/not_ready/completed.", "rationale": "Titan must not leak Logres runtime labels into planning semantics."},
         {"id": "D-006", "decision": "Graph status is dispatchable when at least one task is ready under package rules.", "rationale": "Handoff should permit explicitly parallel or partially unblocked work without waiting for unrelated blocked tasks."},
         {"id": "D-007", "decision": "Planned-task revisions supersede prior graph IDs without mutating the prior graph.", "rationale": "Historical planning evidence must remain immutable and auditable."},
-        {"id": "D-008", "decision": "Interrupt history is append-only and requires explicit decision references for resolve/waive transitions.", "rationale": "Planning gates must remain historically traceable and auditable."}
+        {"id": "D-008", "decision": "Interrupt history is append-only and requires explicit decision references for resolve/waive transitions.", "rationale": "Planning gates must remain historically traceable and auditable."},
+        {"id": "D-009", "decision": "Completion state is valid only with passing verification proof.", "rationale": "A direct constructor or host adapter must not release downstream work from an unverified completion claim."},
+        {"id": "D-010", "decision": "Graph versions share a small in-memory authority that activates exactly one current version.", "rationale": "Immutable historical graph objects must remain inspectable without remaining dispatchable after supersession."}
     ],
     "constraints": [
         "Titan does not depend on Laravel, Eloquent, HTTP, queues, Blade, NativePHP, or provider SDKs.",

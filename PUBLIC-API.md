@@ -50,6 +50,8 @@ The package is pre-release. These names define the current consumer surface; sem
 - `RequiredApproval`
 - `RequiredInput`
 - `PlannedTaskReadiness`
+- `PlannedTaskCompletionProof`
+- `LegacyPlanTaskSemantics`
 - `PlannedTask`
 - `PlannedTaskGraphId`
 - `PlannedTaskGraphStatus`
@@ -59,6 +61,8 @@ The package is pre-release. These names define the current consumer surface; sem
 - `PlannedTaskGraphCompilationResult`
 - `PlannedTaskGraphCompiler`
 - `PlannedTaskGraph`
+- `PlannedTaskGraphSupersession`
+- `PlannedTaskGraphVersionAuthority`
 - `PlannedTaskGraphReadModel`
 - `PlannedTaskHandoff`
 

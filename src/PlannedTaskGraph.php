@@ -8,6 +8,7 @@ use InvalidArgumentException;
 
 final readonly class PlannedTaskGraph
 {
+    private PlannedTaskGraphVersionAuthority $versionAuthority;
     public array $tasks;
 
     public array $selectedCapabilities;
@@ -20,12 +21,14 @@ final readonly class PlannedTaskGraph
         array $tasks,
         array $selectedCapabilities,
         array $interrupts,
+        PlannedTaskGraphVersionAuthority $versionAuthority,
         public PlannedTaskGraphStatus $status,
         public ?PlannedTaskGraphId $supersedes = null,
     ) {
         $this->tasks = array_values($tasks);
         $this->selectedCapabilities = array_values($selectedCapabilities);
         $this->interrupts = array_values($interrupts);
+        $this->versionAuthority = $versionAuthority;
 
         if ($this->tasks === []) {
             throw new InvalidArgumentException('A planned-task graph requires at least one task.');
@@ -200,7 +203,8 @@ final readonly class PlannedTaskGraph
 
     public function isDispatchable(): bool
     {
-        return $this->status === PlannedTaskGraphStatus::Dispatchable;
+        return $this->status === PlannedTaskGraphStatus::Dispatchable
+            && $this->versionAuthority->isCurrent($this->id);
     }
 
     public function handoff(): PlannedTaskHandoff
@@ -212,13 +216,17 @@ final readonly class PlannedTaskGraph
         return PlannedTaskHandoff::fromGraph($this);
     }
 
-    public function complete(PlannedTaskId $id): self
+    public function complete(PlannedTaskId $id, PlannedTaskCompletionProof $proof): self
     {
         if ($this->readiness($id) !== PlannedTaskReadiness::Ready) {
             throw new InvalidWorkKitTransition("Planned task {$id->value} is not ready to complete.");
         }
 
-        $replacement = $this->task($id)->withCompleted(true);
+        if (! $proof->permitsCompletion()) {
+            throw new InvalidWorkKitTransition("Planned task {$id->value} lacks passing verification and completion evidence.");
+        }
+
+        $replacement = $this->task($id)->withCompletionProof($proof);
 
         return $this->replaceTask($replacement);
     }
@@ -269,9 +277,11 @@ final readonly class PlannedTaskGraph
         return $this->replaceTask($task->withInputs($inputs));
     }
 
-    public function supersede(PlannedTaskGraphId $newId, array $tasks): self
+    public function supersede(PlannedTaskGraphId $newId, array $tasks): PlannedTaskGraphSupersession
     {
-        return new self(
+        $this->versionAuthority->activate($newId);
+        $retired = $this->withStatus(PlannedTaskGraphStatus::Superseded);
+        $successor = new self(
             id: $newId,
             workKitId: $this->workKitId,
             tasks: $tasks,
@@ -279,7 +289,10 @@ final readonly class PlannedTaskGraph
             interrupts: $this->interrupts,
             status: PlannedTaskGraphStatus::Planned,
             supersedes: $this->id,
+            versionAuthority: $this->versionAuthority,
         );
+
+        return new PlannedTaskGraphSupersession($retired, $successor);
     }
 
     public function withStatus(PlannedTaskGraphStatus $status): self
@@ -292,6 +305,7 @@ final readonly class PlannedTaskGraph
             interrupts: $this->interrupts,
             status: $status,
             supersedes: $this->supersedes,
+            versionAuthority: $this->versionAuthority,
         );
     }
 
@@ -333,6 +347,7 @@ final readonly class PlannedTaskGraph
                 ? PlannedTaskGraphStatus::Superseded
                 : $this->statusForTasks($tasks),
             supersedes: $this->supersedes,
+            versionAuthority: $this->versionAuthority,
         );
     }
 
@@ -346,6 +361,7 @@ final readonly class PlannedTaskGraph
             interrupts: $this->interrupts,
             status: PlannedTaskGraphStatus::Planned,
             supersedes: $this->supersedes,
+            versionAuthority: $this->versionAuthority,
         );
 
         foreach ($candidate->tasks as $task) {
@@ -385,6 +401,7 @@ final readonly class PlannedTaskGraph
                 ? PlannedTaskGraphStatus::Superseded
                 : $this->statusForTasks($this->tasks),
             supersedes: $this->supersedes,
+            versionAuthority: $this->versionAuthority,
         );
     }
 }

@@ -20,6 +20,7 @@ final readonly class PlannedTaskGraphCompiler
             tasks: $input->tasks,
             selectedCapabilities: $input->workKit->selectedCapabilities,
             interrupts: $input->interrupts,
+            versionAuthority: new PlannedTaskGraphVersionAuthority($input->id),
             status: PlannedTaskGraphStatus::Planned,
             supersedes: $input->supersedes,
         );
@@ -71,6 +72,14 @@ final readonly class PlannedTaskGraphCompiler
             }
 
             $byId[$task->id->value] = $task;
+
+            if ($task->legacySemantics === null) {
+                $failures[] = new PlannedTaskGraphFailure(
+                    'plan_task_mapping_required',
+                    "tasks.{$index}.legacy_semantics",
+                    'Every planned task must preserve its Task, PlanStep, and PlanTask meanings.',
+                );
+            }
 
             foreach ($task->dependencies as $dependencyIndex => $dependency) {
                 if (! $dependency instanceof PlannedTaskId) {

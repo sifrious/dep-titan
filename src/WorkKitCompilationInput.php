@@ -16,6 +16,9 @@ final readonly class WorkKitCompilationInput
 
     public array $failureCriteria;
 
+    /** @var list<\Sifrious\ReferenceContract\CrossPackageReference> */
+    public array $originReferences;
+
     public function __construct(
         public WorkKitId $id,
         public PlanningRecords $records,
@@ -26,11 +29,13 @@ final readonly class WorkKitCompilationInput
         array $completionCriteria,
         array $failureCriteria,
         public ?WorkKitId $supersedes = null,
+        array $originReferences = [],
     ) {
         $this->dependencies = array_values($dependencies);
         $this->selectedCapabilities = array_values($selectedCapabilities);
         $this->verificationSteps = array_values($verificationSteps);
         $this->completionCriteria = array_values($completionCriteria);
         $this->failureCriteria = array_values($failureCriteria);
+        $this->originReferences = array_values($originReferences);
     }
 }

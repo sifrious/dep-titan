@@ -34,6 +34,7 @@ final readonly class WorkKitCompiler
             sourceRecords: $input->records->provenance(),
             status: $complete ? WorkKitStatus::Executable : WorkKitStatus::Assembled,
             supersedes: $input->supersedes,
+            originReferences: $input->originReferences,
         );
 
         return new WorkKitCompilationResult(WorkKitCompilationStatus::Accepted, $kit);

@@ -4,6 +4,11 @@ The package is pre-release. These names define the current consumer surface; sem
 
 ## Work-kit compilation
 
+- `Plan`
+- `PlanMaterialization`
+- `PlanStatus`
+- `PlanStep`
+- `PlanStepDisposition`
 - `WorkKitId`
 - `CapabilityId`
 - `SourceRecordId`
@@ -28,6 +33,15 @@ The package is pre-release. These names define the current consumer surface; sem
 - `WorkKitCompilationFailure`
 - `WorkKitReadModel`
 - `InvalidWorkKitTransition`
+
+## Twinkle promotion
+
+- `Promotion\\ConflictingPromotionReplay`
+- `Promotion\\PromotionRequest`
+- `Promotion\\PromotionResult`
+- `Promotion\\PromotionStatus`
+- `Promotion\\TwinklePromoter`
+- `Promotion\\WorkForm`
 
 ## Planned-task graphs
 

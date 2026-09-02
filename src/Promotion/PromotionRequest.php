@@ -3,23 +3,23 @@ declare(strict_types=1);
 namespace Sifrious\Titan\Promotion;
 use InvalidArgumentException;
 use Quain\Core\Concept\ConceptReference;
-use Sifrious\Elwin\Reference;
+use Sifrious\ReferenceContract\CrossPackageReference;
 
 final readonly class PromotionRequest
 {
-    /** @param list<Reference> $context @param list<ConceptReference> $concepts */
+    /** @param list<CrossPackageReference> $context @param list<ConceptReference> $concepts */
     public function __construct(
         public string $idempotencyKey,
-        public Reference $twinkle,
+        public CrossPackageReference $twinkle,
         public int $twinkleVersion,
         public WorkForm $workForm,
         public string $title,
         public ?string $description,
-        public Reference $promotedBy,
-        public Reference $provenance,
+        public CrossPackageReference $promotedBy,
+        public CrossPackageReference $provenance,
         public array $context = [],
         public array $concepts = [],
-        public ?Reference $repository = null,
+        public ?CrossPackageReference $repository = null,
     ) {
         if (trim($idempotencyKey) === '' || trim($title) === '' || $twinkleVersion < 1) {
             throw new InvalidArgumentException('Promotion requires a key, title, and positive Twinkle version.');

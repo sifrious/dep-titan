@@ -57,6 +57,18 @@ final class WorkKitCompilationTest extends TestCase
     }
 
     #[Test]
+    public function compiled_kits_preserve_typed_cross_package_origin_lineage(): void
+    {
+        $kit = (new WorkKitCompiler)->compile(PlanningRecordFixtures::executableInput())->workKit;
+
+        self::assertSame(
+            ['conversation:atlas', 'twinkle:atlas', 'decision:ship-compiler'],
+            array_map(static fn ($reference): string => $reference->id, $kit?->originReferences ?? []),
+        );
+        self::assertSame(['2', '3', '1'], array_map(static fn ($reference): ?string => $reference->objectVersion, $kit?->originReferences ?? []));
+    }
+
+    #[Test]
     public function dependency_incomplete_work_is_assembled_but_not_dispatchable(): void
     {
         $result = (new WorkKitCompiler)->compile(PlanningRecordFixtures::incompleteInput());

@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 final class PackageBoundaryTest extends TestCase
 {
     #[Test]
-    public function runtime_dependencies_are_limited_to_php(): void
+    public function runtime_dependencies_are_framework_neutral_contracts(): void
     {
         $manifest = json_decode(
             file_get_contents(dirname(__DIR__).'/composer.json'),
@@ -18,7 +18,11 @@ final class PackageBoundaryTest extends TestCase
             flags: JSON_THROW_ON_ERROR,
         );
 
-        self::assertSame(['php' => '^8.3'], $manifest['require']);
+        self::assertSame([
+            'php' => '^8.3',
+            'sifrious/elwin' => 'dev-main',
+            'sifrious/reference-contract' => '^1.0',
+        ], $manifest['require']);
         self::assertSame('sifrious/titan', $manifest['name']);
         self::assertSame('Sifrious\\Titan\\', array_key_first($manifest['autoload']['psr-4']));
     }

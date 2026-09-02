@@ -20,6 +20,9 @@ final readonly class WorkKit
 
     public array $sourceRecords;
 
+    /** @var list<\Sifrious\ReferenceContract\CrossPackageReference> */
+    public array $originReferences;
+
     public function __construct(
         public WorkKitId $id,
         public string $outcome,
@@ -33,6 +36,7 @@ final readonly class WorkKit
         array $sourceRecords,
         public WorkKitStatus $status,
         public ?WorkKitId $supersedes = null,
+        array $originReferences = [],
     ) {
         foreach ([['outcome', $outcome], ['first_action', $firstAction]] as [$field, $value]) {
             if (trim($value) === '') {
@@ -46,6 +50,7 @@ final readonly class WorkKit
         $this->completionCriteria = array_values($completionCriteria);
         $this->failureCriteria = array_values($failureCriteria);
         $this->sourceRecords = array_values($sourceRecords);
+        $this->originReferences = array_values($originReferences);
 
         if ($this->verificationSteps === []) {
             throw new InvalidArgumentException('At least one verification step is required.');
@@ -125,6 +130,7 @@ final readonly class WorkKit
             sourceRecords: $this->sourceRecords,
             status: $status,
             supersedes: $this->supersedes,
+            originReferences: $this->originReferences,
         );
     }
 }

@@ -18,6 +18,7 @@ use Sifrious\Titan\SourceProvenance;
 use Sifrious\Titan\SourceRecordId;
 use Sifrious\Titan\WorkKitCompilationInput;
 use Sifrious\Titan\WorkKitId;
+use Sifrious\ReferenceContract\CrossPackageReference;
 
 final class PlanningRecordFixtures
 {
@@ -71,6 +72,11 @@ final class PlanningRecordFixtures
             verificationSteps: ['Contract tests prove compilation, incomplete-dependency refusal, and explicit transitions.'],
             completionCriteria: ['A compiled work kit names outcome, first action, dependencies, scope, verification, and completion.'],
             failureCriteria: ['Dependency-incomplete work is presented as executable.'],
+            originReferences: [
+                new CrossPackageReference('sifrious/elwin', 'conversation', 'conversation:atlas', '2'),
+                new CrossPackageReference('sifrious/elwin', 'twinkle', 'twinkle:atlas', '3'),
+                new CrossPackageReference('sifrious/elwin', 'decision', 'decision:ship-compiler', '1'),
+            ],
         );
     }
 

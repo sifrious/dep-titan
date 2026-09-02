@@ -2,12 +2,13 @@
 declare(strict_types=1);
 namespace Sifrious\Titan;
 use InvalidArgumentException;
+use Sifrious\ReferenceContract\CrossPackageReference;
 final readonly class Plan
 {
-    /** @param non-empty-list<PlanStep> $steps */
-    public function __construct(public string $id, public string $conversationReference, public array $steps, public PlanStatus $status = PlanStatus::Draft, public ?string $replacementPlanId = null)
+    /** @param list<PlanStep> $steps */
+    public function __construct(public string $id, public CrossPackageReference $conversationReference, public array $steps, public PlanStatus $status = PlanStatus::Draft, public ?string $replacementPlanId = null)
     {
-        if (trim($id) === '' || trim($conversationReference) === '' || $steps === []) {
+        if (trim($id) === '' || $steps === []) {
             throw new InvalidArgumentException('Plan identity, conversation origin, and at least one step are required.');
         }
         if ($status === PlanStatus::Superseded && $replacementPlanId === null) {

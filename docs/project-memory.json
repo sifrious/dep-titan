@@ -1,0 +1,62 @@
+{
+    "schema_version": 1,
+    "project": "Titan",
+    "updated_at": "2026-08-29T06:15:00Z",
+    "facts": [
+        {"id": "F-001", "statement": "Titan is a framework-neutral work-kit compiler with PHP as its only runtime dependency."},
+        {"id": "F-002", "statement": "A compiled work kit names outcome, first action, dependencies, scope fence, selected Quain capability identities, verification steps, completion criteria, and failure criteria."},
+        {"id": "F-003", "statement": "CodeAction, PlanCommit, PlanPr, PlanOption, and Checkin enter Titan as portable adapter DTOs that preserve Landing source identifiers and provenance."},
+        {"id": "F-004", "statement": "Dependency-incomplete work can be assembled but cannot be presented as executable or dispatchable."},
+        {"id": "F-005", "statement": "Plan option selection and checkin recording are explicit transitions and are not inferred from timestamps or UI state."},
+        {"id": "F-006", "statement": "Logres owns current execution after dispatch; Titan does not own runtime or current-state."},
+        {"id": "F-007", "statement": "Titan compiles executable work kits into planned-task graphs with explicit dependency edges and deterministic topological traversal."},
+        {"id": "F-008", "statement": "Planned-task readiness is computed from dependency completion, approvals, required capabilities, and required inputs rather than Logres runtime states."},
+        {"id": "F-009", "statement": "Graph compilation rejects missing dependency references and dependency cycles before a graph can be dispatchable."},
+        {"id": "F-010", "statement": "Planned-task handoff emits only ready tasks that are dependency-complete, approval-complete, capability-compatible, and input-ready."},
+        {"id": "F-011", "statement": "Titan provides one portable interrupt contract with identity, target graph/task, type, reason, evidence references, created-by/created-at, and append-only resolution history."},
+        {"id": "F-012", "statement": "Active interrupt states open and acknowledged block planning readiness; resolved and waived do not block."}
+    ],
+    "assumptions": [
+        {"id": "A-001", "statement": "Hosts will map existing Landing Eloquent rows onto the portable DTOs until catalogue extraction tickets land."},
+        {"id": "A-002", "statement": "Empty dependency sets are complete and therefore executable when the rest of the contract is present."},
+        {"id": "A-003", "statement": "When no plan options are supplied, the CodeAction intent is a sufficient outcome for compilation."},
+        {"id": "A-004", "statement": "Orbis template identity is a stable string reference and Orbis template definitions remain external to Titan."},
+        {"id": "A-005", "statement": "Orual/Uqbar decision systems can provide stable decision IDs usable as portable references in interrupt resolution history."}
+    ],
+    "decisions": [
+        {"id": "D-001", "decision": "Selected capabilities are Quain identities only.", "rationale": "Titan must not duplicate capability semantics."},
+        {"id": "D-002", "decision": "Compilation accepts assembled kits when dependencies are incomplete and refuses executable presentation.", "rationale": "The contract can be named for inspection without becoming dispatchable."},
+        {"id": "D-003", "decision": "Changing a selected option requires dismiss then select.", "rationale": "Lifecycle must stay explicit and testable."},
+        {"id": "D-004", "decision": "Catalogue persistence stayed on child tickets while MME-1211 landed.", "rationale": "MME-1211 was the compile contract, not the rest of Titan."},
+        {"id": "D-005", "decision": "MME-1226 graph readiness uses planning labels ready/blocked/not_ready/completed.", "rationale": "Titan must not leak Logres runtime labels into planning semantics."},
+        {"id": "D-006", "decision": "Graph status is dispatchable when at least one task is ready under package rules.", "rationale": "Handoff should permit explicitly parallel or partially unblocked work without waiting for unrelated blocked tasks."},
+        {"id": "D-007", "decision": "Planned-task revisions supersede prior graph IDs without mutating the prior graph.", "rationale": "Historical planning evidence must remain immutable and auditable."},
+        {"id": "D-008", "decision": "Interrupt history is append-only and requires explicit decision references for resolve/waive transitions.", "rationale": "Planning gates must remain historically traceable and auditable."}
+    ],
+    "constraints": [
+        "Titan does not depend on Laravel, Eloquent, HTTP, queues, Blade, NativePHP, or provider SDKs.",
+        "Titan does not own UI rendering or provider-specific execution.",
+        "Titan does not compute Logres runtime readiness.",
+        "Public package consumers must not require licenses or private dependencies."
+    ],
+    "open_questions": [
+        {"id": "Q-001", "question": "Which exact Landing columns survive catalogue extraction versus remaining host-only?"},
+        {"id": "Q-002", "question": "Which interrupt-type-specific policy fields are required beyond the shared contract when catalogue extraction lands?"},
+        {"id": "Q-003", "question": "How should MME-1235 repository/file/test/proposed-change references attach to each planned task without changing task identity?"}
+    ],
+    "glossary": [
+        {"term": "Work kit", "definition": "The compiled, presentation-neutral description of intended executable work."},
+        {"term": "Assembled", "definition": "A compiled kit that names the contract but is not dependency-complete."},
+        {"term": "Executable", "definition": "A compiled kit whose declared dependencies are satisfied and that may be presented for dispatch."},
+        {"term": "Landing adapter residue", "definition": "Eloquent, UI, or mixed-ownership behavior that remains in Landing until a child ticket extracts it."},
+        {"term": "Planned-task graph", "definition": "A work-kit-derived dependency graph of explicit planned tasks and planning-time readiness."},
+        {"term": "Planned-task handoff", "definition": "The dispatch payload containing only currently ready planned tasks and their execution-neutral contract fields."},
+        {"term": "Planning interrupt", "definition": "A planning-time gate that can block readiness before execution without representing runtime failure state."}
+    ],
+    "features": [
+        {"id": "MME-1211", "name": "Compile planning records into executable work kits", "stage": "v0.1", "status": "implemented"},
+        {"id": "MME-1226", "name": "Executable task graph and readiness", "stage": "v0.1", "status": "implemented"},
+        {"id": "MME-1234", "name": "Planning interrupts and approval gates", "stage": "v0.1", "status": "implemented"},
+        {"id": "MME-1235", "name": "Repository and proposed-change bindings", "stage": "later", "status": "blocked"}
+    ]
+}

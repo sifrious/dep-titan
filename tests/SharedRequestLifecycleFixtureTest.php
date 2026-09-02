@@ -6,6 +6,7 @@ namespace Sifrious\Titan\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Sifrious\HarnessContractFixtures\Fixture;
+use Sifrious\ReferenceContract\CrossPackageReference;
 use Sifrious\Titan\Plan;
 use Sifrious\Titan\PlanMaterialization;
 use Sifrious\Titan\PlanStep;
@@ -25,24 +26,51 @@ final class SharedRequestLifecycleFixtureTest extends TestCase
             ),
             $expected['steps'],
         );
-        $plan = new Plan($expected['id'], $expected['conversation_id'], $steps);
+        $plan = new Plan(
+            $expected['id'],
+            new CrossPackageReference('sifrious/elwin', 'conversation', $expected['conversation_id']),
+            $steps,
+        );
         $discussion = new PlanMaterialization(
             $plan->id,
             $plan->steps[0]->id,
-            $expected['steps'][0]['materialized_execution_request_ids'],
+            $this->executionRequestReferences($expected['steps'][0]['materialized_execution_request_ids']),
         );
         $execution = new PlanMaterialization(
             $plan->id,
             $plan->steps[1]->id,
-            $expected['steps'][1]['materialized_execution_request_ids'],
+            $this->executionRequestReferences($expected['steps'][1]['materialized_execution_request_ids']),
         );
 
         self::assertSame([], $discussion->executionRequestReferences);
-        self::assertSame($expected['steps'][1]['materialized_execution_request_ids'], $execution->executionRequestReferences);
+        self::assertSame(
+            $expected['steps'][1]['materialized_execution_request_ids'],
+            array_map(static fn (CrossPackageReference $reference): string => $reference->id, $execution->executionRequestReferences),
+        );
 
         $multi = $fixture['multi_work_kit_variant'];
-        $multiMaterialization = new PlanMaterialization($multi['plan_id'], 'multi-work-kit', $multi['execution_request_ids']);
-        self::assertSame($multi['execution_request_ids'], $multiMaterialization->executionRequestReferences);
+        $multiMaterialization = new PlanMaterialization(
+            $multi['plan_id'],
+            'multi-work-kit',
+            $this->executionRequestReferences($multi['execution_request_ids']),
+        );
+        self::assertSame(
+            $multi['execution_request_ids'],
+            array_map(static fn (CrossPackageReference $reference): string => $reference->id, $multiMaterialization->executionRequestReferences),
+        );
         self::assertCount($multi['distinct_origin_relation_count'], $multiMaterialization->executionRequestReferences);
+    }
+
+    /** @param list<string> $ids @return list<CrossPackageReference> */
+    private function executionRequestReferences(array $ids): array
+    {
+        return array_map(
+            static fn (string $id): CrossPackageReference => new CrossPackageReference(
+                'sifrious/logres',
+                'execution-request',
+                $id,
+            ),
+            $ids,
+        );
     }
 }
